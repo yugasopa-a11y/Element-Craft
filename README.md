@@ -50,6 +50,68 @@ Unlike traditional crafting games, this system is designed to feel **endless**, 
 
 ---
 
+## ▶️ How to Run Locally
+
+⚠️ **Do NOT just open `index.html` directly** — it will break due to browser restrictions.
+
+### Option 1: Quick Run (Recommended)
+
+1. Install Node.js (if not already installed)
+2. Open a terminal in your project folder
+3. Run:
+
+```
+npx serve .
+```
+
+or:
+
+```
+npx http-server .
+```
+
+4. Open your browser and go to:
+
+```
+http://localhost:3000
+```
+
+---
+
+### Option 2: If the `/api` Folder Is Used
+
+If your project includes backend logic inside `/api`, you may need to run it separately:
+
+1. Install dependencies:
+
+```
+npm install
+```
+
+2. Start the server:
+
+```
+node api/server.js
+```
+
+or:
+
+```
+npm start
+```
+
+3. Then open the frontend (either via server or a local dev server)
+
+---
+
+### Why This Is Required
+
+* Browsers block local file imports (`file://`)
+* Modules and API calls won’t work without a server
+* A local server simulates a real deployment environment
+
+---
+
 ## ⚠️ Important Design Rule
 
 This project enforces **logical consistency** in all generated elements:
