@@ -1,0 +1,114 @@
+export interface Element {
+  name: string;
+  description: string;
+  emoji: string;
+  category: string;
+  rarity: string;
+  parents?: string[];
+  discoveredAt?: number;
+}
+
+export interface Combination {
+  element1: string;
+  element2: string;
+  result: string;
+}
+
+export interface HistoryEntry {
+  result: string;
+  parents: string[];
+  timestamp: number;
+}
+
+export interface GameState {
+  discoveredElements: Element[];
+  combinations: Combination[];
+  history: HistoryEntry[];
+  totalDiscoveries: number;
+}
+
+const STORAGE_KEY = 'elementcraft_save';
+
+export function loadGameState(): GameState {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (error) {
+    console.error('Failed to load game state:', error);
+  }
+  return {
+    discoveredElements: [],
+    combinations: [],
+    history: [],
+    totalDiscoveries: 0
+  };
+}
+
+export function saveGameState(state: GameState): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.error('Failed to save game state:', error);
+  }
+}
+
+export function resetGameState(): void {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+export function isElementDiscovered(state: GameState, elementName: string): boolean {
+  return state.discoveredElements.some(el => el.name.toLowerCase() === elementName.toLowerCase());
+}
+
+export function addDiscoveredElement(state: GameState, element: Element, parents: string[]): GameState {
+  if (isElementDiscovered(state, element.name)) {
+    return state;
+  }
+  
+  const newElement = {
+    ...element,
+    parents,
+    discoveredAt: Date.now()
+  };
+  
+  const newHistory: HistoryEntry = {
+    result: element.name,
+    parents,
+    timestamp: Date.now()
+  };
+  
+  return {
+    ...state,
+    discoveredElements: [...state.discoveredElements, newElement],
+    history: [newHistory, ...state.history].slice(0, 50), // Keep last 50 entries
+    totalDiscoveries: state.totalDiscoveries + 1
+  };
+}
+
+export function getCombinationResult(state: GameState, element1: string, element2: string): Combination | null {
+  const key1 = `${element1}+${element2}`;
+  const key2 = `${element2}+${element1}`;
+  
+  const found = state.combinations.find(c => 
+    `${c.element1}+${c.element2}` === key1 || 
+    `${c.element1}+${c.element2}` === key2
+  );
+  
+  return found || null;
+}
+
+export function addCombination(state: GameState, combination: Combination): GameState {
+  const exists = state.combinations.some(c => 
+    (c.element1 === combination.element1 && c.element2 === combination.element2) ||
+    (c.element1 === combination.element2 && c.element2 === combination.element1)
+  );
+  
+  if (exists) return state;
+  
+  return {
+    ...state,
+    combinations: [...state.combinations, combination]
+  };
+}

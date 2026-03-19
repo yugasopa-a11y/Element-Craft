@@ -1,0 +1,51 @@
+import { Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { Achievements } from './Achievements';
+
+interface AchievementBadgeProps {
+  totalDiscoveries: number;
+}
+
+export function AchievementBadge({ totalDiscoveries }: AchievementBadgeProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const unlockedCount = [
+    totalDiscoveries >= 1,
+    totalDiscoveries >= 10,
+    totalDiscoveries >= 50,
+    totalDiscoveries >= 100
+  ].filter(Boolean).length;
+  
+  return (
+    <>
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors relative"
+        >
+          <Trophy className="w-5 h-5 text-yellow-500" />
+          {unlockedCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+              {unlockedCount}
+            </span>
+          )}
+        </button>
+        
+        {isOpen && (
+          <div className="absolute right-0 top-full mt-2 w-80 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-4">
+              <Achievements totalDiscoveries={totalDiscoveries} />
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
+  );
+}
